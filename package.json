@@ -1,0 +1,35 @@
+{
+  "name": "grunt-cortex-neuron-build",
+  "version": "0.0.0",
+  "description": "build cmd module to neuron wrapped module",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/supersheep/grunt-cortex-neuron-build.git"
+  },
+  "keywords": [
+    "cortex",
+    "build",
+    "commonjs",
+    "neuron",
+    "grunt"
+  ],
+  "author": "spud",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/supersheep/grunt-cortex-neuron-build/issues"
+  },
+  "dependencies": {
+    "path": "~0.4.9",
+    "async": "~0.2.9",
+    "uglify-js": "~2.4.0",
+    "fs-sync": "~0.2.4",
+    "multi-profile": "~0.1.11"
+  },
+  "devDependencies": {
+    "asks": "~0.1.5"
+  }
+}
