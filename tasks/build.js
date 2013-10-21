@@ -24,8 +24,7 @@ module.exports = function(grunt){
         var build       = {};
         var fileSrc     = this.filesSrc; 
         var run_options = this.options({
-            define:"define",
-            publish:true,
+            define:"DP.define"
         });
 
         var REGEX_ENDS_WITH_JS = /\.js$/;
@@ -34,7 +33,7 @@ module.exports = function(grunt){
         var main_file = node_path.join(
             cwd, 
             // default to `'index.js'`
-            ensure_js_ext(pkg.main || 'index.js') 
+            ensure_js_ext((pkg.cortex && pkg.cortex.main) || pkg.main || 'index.js') 
         );
         var main_dir = node_path.dirname(main_file);
 
@@ -591,11 +590,7 @@ module.exports = function(grunt){
                     return callback(err);
                 }
 
-                if(run_options.publish){
-                    build.publish(data, callback);
-                }else{
-                    callback(null);
-                }
+                callback(null);
             });
         });
 
