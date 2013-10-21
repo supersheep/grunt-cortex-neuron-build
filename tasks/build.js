@@ -21,15 +21,22 @@ module.exports = function(grunt){
             NAME_MUST_BE_DEFINED    : 'package.name must be defined.',
             VER_MUST_BE_DEFINED     : 'package.version must be defined.'
         };
-
         var build       = {};
-        var options     = this.options({
-            cwd:process.cwd(),
+        var fileSrc     = this.filesSrc; 
+        var run_options = this.options({
+            define:"define",
             publish:true,
-            files:this.filesSrc.map(function(file){return node_path.resolve(file)}),
-            context:{}
         });
-            
+
+        var REGEX_ENDS_WITH_JS = /\.js$/;
+        var cwd = run_options.cwd;
+        var pkg = fs.readJSON( node_path.join(cwd, 'package.json') );
+        var main_file = node_path.join(
+            cwd, 
+            // default to `'index.js'`
+            ensure_js_ext(pkg.main || 'index.js') 
+        );
+
         build.ENSURE_PROPERTY = {
             name: {
                 err: MESSAGE.NAME_MUST_BE_DEFINED
@@ -101,10 +108,9 @@ module.exports = function(grunt){
         };
 
         build.context = {}
-        build.context.profile = multi_profile(lang.mix(options, DEFAULT_OPTIONS, false));
+        build.context.profile = multi_profile(lang.mix(run_options, DEFAULT_OPTIONS, false));
 
 
-        var REGEX_ENDS_WITH_JS = /\.js$/;
 
         function check_package(pkg){
             var err;
@@ -134,7 +140,6 @@ module.exports = function(grunt){
 
         build.build_files = function(options, callback) {
             var cwd = options.cwd;
-            var pkg = fs.readJSON( node_path.join(cwd, 'package.json') );
 
             // main entrance:
             // {
@@ -190,17 +195,10 @@ module.exports = function(grunt){
                 // -> 'module@0.0.1'
                 var main_id = name + '@' + version;
 
-                // /User/.../xxx/index.js
-                var main_file = node_path.join(
-                    cwd, 
-                    // default to `'index.js'`
-                    ensure_js_ext(pkg.main || 'index.js') 
-                );
-
                 if( !fs.exists(main_file) ){
-                    return callback( build.logger.template(build.MESSAGE.NO_ENTRY_POINT, {
+                    return callback( grunt.template.process('Main file "<%= path %>" is not found.', {
                         path: main_file
-                    }) );
+                    }));
                 }
 
 
@@ -267,11 +265,12 @@ module.exports = function(grunt){
         // - main_file: {string}
         // - files: {Array}
         build.check_files = function(options, callback) {
+            console.log(options);
             var filtered = options.files.filter(function(file) {
                 if( fs.exists(file) ){
                     return true;
                 }else{
-                    grunt.fail.warn( build.logger.template(build.MESSAGE.FILE_NOT_FOUND, {path: file}) );
+                    grunt.fail.warn( grunt.template.process('Source file "<%= path %>" not found.', {path: file}) );
                     return false;
                 }
             });
@@ -283,7 +282,7 @@ module.exports = function(grunt){
                 // path: 'ROOT/test/fixtures/folder/foo.js'
                 // -> 'folder/foo.js'
                 if( ~ node_path.relative(options.main_dir, file).indexOf('../') ){
-                    callback( build.logger.template(build.MESSAGEUSE_PARENT_DIRECTORY, {
+                    callback( grunt.template.process('Modules "<%= path %>" outside the folder of the main module may cause serious further problems.', {
                         path: file
                     }) );
 
@@ -357,12 +356,12 @@ module.exports = function(grunt){
                 ast = uglifyjs.parse(content);
             }catch(e){
                 return callback(
-                    build.logger.template(build.MESSAGE.SYNTAX_PARSE_ERROR, {path: file, err: e})
+                    grunt.template.process('Source file "<%= path %>" syntax parse error: "<%= err %>".', {path: file, err: e})
                 );
             }
 
             if(!checker.check(ast)){
-                grunt.fail.warn( build.logger.template(build.MESSAGE.ALREADY_WRAPPED, {path: file}) );
+                grunt.fail.warn( grunt.template.process('Source file "<%= path %>" already has module wrapping, which will cause further problems.', {path: file}) );
                 wrapped = content;
 
             }else{
@@ -426,7 +425,7 @@ module.exports = function(grunt){
                             deps.push(dep.value);
                             
                         }else{
-                            err = build.logger.template( build.MESSAGE.WRONG_USE_REQUIRE, {path: options.file} );
+                            err = grunt.template.process( 'Source file "<%= path %>": `require` should have one and only one string as an argument.', {path: options.file} );
                         }
                     }
                 }
@@ -473,7 +472,7 @@ module.exports = function(grunt){
                     var version = options.pkg_dependencies[dep];
 
                     if(!version){
-                        err = build.logger.template( build.MESSAGE.NO_EXACT_VERSION, {mod: dep, path: options.file} );
+                        err = grunt.template.process( 'Exact version of dependency "<%= mod %>" has not defined in package.json. Use "ctx install <%= mod%> --save".', {mod: dep, path: options.file} );
                         break;
                     }
 
@@ -530,12 +529,17 @@ module.exports = function(grunt){
             }
         }
 
-        build.build_files(options, function(err, data) {
+
+        // var file_main = fileSrc.map(function(file){return node_path.resolve(file)});
+         
+        run_options.files = fileSrc.map(function(file){return node_path.resolve(file)});
+
+        build.build_files(run_options, function(err, data) {
             if(err){
                 return callback(err);
             }
 
-            if(options.publish){
+            if(run_options.publish){
                 build.publish(data, callback);
             }else{
                 callback(null);
