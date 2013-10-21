@@ -5,7 +5,7 @@ module.exports = function(grunt){
 
         var checker     = require('../lib/check-wrapper');
         var wrapper     = require('../lib/wrapper');
-        var lang     = require('../lib/lang');
+        var lang        = require('../lib/lang');
 
 
         var uglifyjs    = require('uglify-js');
@@ -36,6 +36,7 @@ module.exports = function(grunt){
             // default to `'index.js'`
             ensure_js_ext(pkg.main || 'index.js') 
         );
+        var main_dir = node_path.dirname(main_file);
 
         build.ENSURE_PROPERTY = {
             name: {
@@ -202,8 +203,6 @@ module.exports = function(grunt){
                 }
 
 
-                var main_dir = node_path.dirname(main_file);
-
                 async.waterfall([
                     function(done) {
                         // check file paths
@@ -265,7 +264,6 @@ module.exports = function(grunt){
         // - main_file: {string}
         // - files: {Array}
         build.check_files = function(options, callback) {
-            console.log(options);
             var filtered = options.files.filter(function(file) {
                 if( fs.exists(file) ){
                     return true;
@@ -345,32 +343,11 @@ module.exports = function(grunt){
         // - output: {string}
         build.write_module = function(options, callback) {
             var file = options.file;
-
-            // read file
             var content = fs.read(file);
             
-            var ast;
-
-            // syntax parse may cause a javascript error
-            try{
-                ast = uglifyjs.parse(content);
-            }catch(e){
-                return callback(
-                    grunt.template.process('Source file "<%= path %>" syntax parse error: "<%= err %>".', {path: file, err: e})
-                );
-            }
-
-            if(!checker.check(ast)){
-                grunt.fail.warn( grunt.template.process('Source file "<%= path %>" already has module wrapping, which will cause further problems.', {path: file}) );
-                wrapped = content;
-
-            }else{
                 async.waterfall([
                     function(done) {
-                        build.parse_dependencies({
-                            ast: ast,
-                            file: file
-                        }, done);
+                        build.parse_dependencies(file, done);
                     },
 
                     function(data, done) {
@@ -399,7 +376,6 @@ module.exports = function(grunt){
                 ], function(err) {
                     callback(err);
                 });
-            }
         }
 
 
@@ -407,9 +383,15 @@ module.exports = function(grunt){
         // @param {Object} options
         // - file: {string}
         // - ast: {uglifyjs.AST_Node} 
-        build.parse_dependencies = function(options, callback) {
+        build.parse_dependencies = function(file, callback) {
+            var ast;
             var deps = [];
             var err;
+
+            // read file
+            var content = fs.read(file);
+            
+            var ast;
 
             // use syntax analytics
             var walker = new uglifyjs.TreeWalker(function(node) {
@@ -431,15 +413,33 @@ module.exports = function(grunt){
                 }
             });
 
-            options.ast.walk(walker);
-
-            if(err){
-                callback(err);
-            }else{
-                callback(null, {
-                    dependencies: deps
-                });
+            // syntax parse may cause a javascript error
+            try{
+                ast = uglifyjs.parse(content);
+            }catch(e){
+                return callback(
+                    grunt.template.process('Source file "<%= path %>" syntax parse error: "<%= err %>".', {path: file, err: e})
+                );
             }
+
+            if(!checker.check(ast)){
+                callback( grunt.template.process('Source file "<%= path %>" already has module wrapping, which will cause further problems.', {path: file}) );
+                // wrapped = content;
+
+            }else{
+                ast.walk(walker);
+
+                if(err){
+                    callback(err);
+                }else{
+                    callback(null, {
+                        dependencies: deps
+                    });
+                }
+            }
+            
+
+            
         };
 
 
@@ -531,20 +531,75 @@ module.exports = function(grunt){
 
 
         // var file_main = fileSrc.map(function(file){return node_path.resolve(file)});
-         
-        run_options.files = fileSrc.map(function(file){return node_path.resolve(file)});
-
-        build.build_files(run_options, function(err, data) {
-            if(err){
-                return callback(err);
+        var parse_all_dependencies = function(file,all_parsed){
+            var all = parse_all_dependencies.all = parse_all_dependencies.all || [];
+            
+            var resolve = function(file,path){
+                var dir = node_path.dirname(file);
+                return node_path.resolve(node_path.join(dir,path+".js"));
             }
 
-            if(run_options.publish){
-                build.publish(data, callback);
-            }else{
-                callback(null);
+            var add = function(path){
+                if(all.indexOf(path) === -1){
+                    all.push(path);
+                }
             }
+
+            var parse_file = function(file,file_parsed){
+                build.parse_dependencies(file,function(err,data){
+                    var deps = data.dependencies.filter(is_relative_path).map(function(path){
+                        return resolve(file,path);
+                    });
+                    grunt.log.debug(file,"dependeny on",deps.join(","));
+                    var len = deps.length;
+                    if(!len){
+                        grunt.log.debug(file,"parsed");
+                        file_parsed(null,[]);
+                    }else{
+                        deps.forEach(add);
+                        deps.forEach(function(file){
+                            parse_file(file,function(){
+                                len--;
+                                if(len===0){
+                                    grunt.log.debug(file,"parsed");
+                                    file_parsed(null,deps);
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+
+            parse_file(file,function(err){
+                if(err){return all_parsed(err);}
+
+                all_parsed(null,all);
+                all = parse_all_dependencies.all = [];
+            });
+        }
+
+
+        run_options.files = [main_file];
+
+
+        parse_all_dependencies(main_file,function(err,data){
+            if(err){return callback(err);}
+            run_options.files = run_options.files.concat(data);
+            //fileSrc.map(function(file){return node_path.resolve(file)});
+            build.build_files(run_options, function(err, data) {
+                if(err){
+                    return callback(err);
+                }
+
+                if(run_options.publish){
+                    build.publish(data, callback);
+                }else{
+                    callback(null);
+                }
+            });
         });
+
+        
 
 
 
