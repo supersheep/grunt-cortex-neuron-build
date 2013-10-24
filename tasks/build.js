@@ -108,7 +108,7 @@ module.exports = function(grunt){
         };
 
         build.context = {}
-        build.context.profile = multi_profile(lang.mix(run_options, DEFAULT_OPTIONS, false));
+        build.context.profile = multi_profile(lang.mix(run_options, DEFAULT_OPTIONS, false)).init();
 
 
 
@@ -163,7 +163,7 @@ module.exports = function(grunt){
             var name = pkg.name;
             var version = pkg.version;
 
-            var CORTEX_BUILT_TEMP = build.context.profile.option('built_temp');
+            var CORTEX_BUILT_TEMP = build.context.profile.get('built_temp');
             var built_folder = node_path.join(cwd, CORTEX_BUILT_TEMP, name, version);
 
             // copy stylesheets
@@ -506,7 +506,7 @@ module.exports = function(grunt){
             grunt.log.writeln('publishing...'.cyan);
 
 
-            var CORTEX_BUILT_ROOT = build.context.profile.option('built_root');
+            var CORTEX_BUILT_ROOT = build.context.profile.get('built_root');
 
             var to = node_path.join( CORTEX_BUILT_ROOT, options.name, options.version );
 

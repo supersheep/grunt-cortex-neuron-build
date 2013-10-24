@@ -27,8 +27,8 @@
     "async": "~0.2.9",
     "uglify-js": "~2.4.0",
     "fs-sync": "~0.2.4",
-    "multi-profile": "~0.1.11",
-    "colors": "~0.6.2"
+    "colors": "~0.6.2",
+    "multi-profile": "~3.1.1"
   },
   "devDependencies": {
     "asks": "~0.1.5"
