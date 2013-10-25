@@ -196,7 +196,7 @@ module.exports = function(grunt){
                 var main_id = name + '@' + version;
 
                 if( !fs.exists(main_file) ){
-                    return callback( grunt.template.process('Main file "<%= path %>" is not found.', {
+                    return callback( lang.template('Main file "{path}" is not found.', {
                         path: main_file
                     }));
                 }
@@ -267,7 +267,7 @@ module.exports = function(grunt){
                 if( fs.exists(file) ){
                     return true;
                 }else{
-                    grunt.fail.warn( grunt.template.process('Source file "<%= path %>" not found.', {path: file}) );
+                    grunt.fail.warn( lang.template('Source file "{path}" not found.', {path: file}) );
                     return false;
                 }
             });
@@ -279,7 +279,7 @@ module.exports = function(grunt){
                 // path: 'ROOT/test/fixtures/folder/foo.js'
                 // -> 'folder/foo.js'
                 if( ~ node_path.relative(options.main_dir, file).indexOf('../') ){
-                    callback( grunt.template.process('Modules "<%= path %>" outside the folder of the main module may cause serious further problems.', {
+                    callback( lang.template('Modules "{path}" outside the folder of the main module may cause serious further problems.', {
                         path: file
                     }) );
 
@@ -404,7 +404,7 @@ module.exports = function(grunt){
                             deps.push(dep.value);
                             
                         }else{
-                            err = grunt.template.process( 'Source file "<%= path %>": `require` should have one and only one string as an argument.', {path: options.file} );
+                            err = lang.template( 'Source file "{path}": `require` should have one and only one string as an argument.', {path: options.file} );
                         }
                     }
                 }
@@ -415,12 +415,12 @@ module.exports = function(grunt){
                 ast = uglifyjs.parse(content);
             }catch(e){
                 return callback(
-                    grunt.template.process('Source file "<%= path %>" syntax parse error: "<%= err %>".', {path: file, err: e})
+                    lang.template('Source file "{path}" syntax parse error: "{err}".', {path: file, err: e})
                 );
             }
 
             if(!checker.check(ast)){
-                callback( grunt.template.process('Source file "<%= path %>" already has module wrapping, which will cause further problems.', {path: file}) );
+                callback( lang.template('Source file "{path}" already has module wrapping, which will cause further problems.', {path: file}) );
                 // wrapped = content;
 
             }else{
@@ -469,7 +469,7 @@ module.exports = function(grunt){
                     var version = options.pkg_dependencies[dep];
 
                     if(!version){
-                        err = grunt.template.process( 'Exact version of dependency "<%= mod %>" has not defined in package.json. Use "ctx install <%= mod%> --save".', {mod: dep, path: options.file} );
+                        err = lang.template( 'Exact version of dependency "{mod}" has not defined in package.json. Use "ctx install {mod } --save".', {mod: dep, path: options.file} );
                         break;
                     }
 
@@ -505,6 +505,9 @@ module.exports = function(grunt){
 
             var parse_file = function(file,file_parsed){
                 build.parse_dependencies(file,function(err,data){
+                    if(err){
+                        return all_parsed(err);
+                    }
                     var deps = data.dependencies.filter(is_relative_path).map(function(path){
                         return resolve(file,path);
                     });
@@ -541,7 +544,7 @@ module.exports = function(grunt){
 
 
         parse_all_dependencies(main_file,function(err,data){
-            if(err){return task_done(err);}
+            if(err){return task_done(new Error(err));}
             run_options.files = run_options.files.concat(data);
 
             build.build_files(run_options, function(err, data) {
