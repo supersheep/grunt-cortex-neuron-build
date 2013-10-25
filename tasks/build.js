@@ -14,7 +14,7 @@ module.exports = function(grunt){
         var node_path   = require('path');
         var multi_profile = require("multi-profile");
 
-        var callback = this.async();
+        var task_done = this.async();
 
 
         var MESSAGE = {
@@ -22,9 +22,9 @@ module.exports = function(grunt){
             VER_MUST_BE_DEFINED     : 'package.version must be defined.'
         };
         var build       = {};
-        var fileSrc     = this.filesSrc; 
+
         var run_options = this.options({
-            define:"DP.define"
+            define:"define"
         });
 
         var REGEX_ENDS_WITH_JS = /\.js$/;
@@ -55,7 +55,7 @@ module.exports = function(grunt){
                     if(!fs.isPathAbsolute(v)){
 
                         // convert to absolute path relative to the root directory of the current profile
-                        v = node_path.join(build.context.profile.currentDir(), v);
+                        v = node_path.join(profile.currentDir(), v);
                     }
 
                     if(!fs.isDir(v)){
@@ -107,8 +107,8 @@ module.exports = function(grunt){
             }
         };
 
-        build.context = {}
-        build.context.profile = multi_profile(lang.mix(run_options, DEFAULT_OPTIONS, false)).init();
+
+        var profile = multi_profile(lang.mix(run_options, DEFAULT_OPTIONS, false)).init();
 
 
 
@@ -163,7 +163,7 @@ module.exports = function(grunt){
             var name = pkg.name;
             var version = pkg.version;
 
-            var CORTEX_BUILT_TEMP = build.context.profile.get('built_temp');
+            var CORTEX_BUILT_TEMP = profile.get('built_temp');
             var built_folder = node_path.join(cwd, CORTEX_BUILT_TEMP, name, version);
 
             // copy stylesheets
@@ -229,7 +229,7 @@ module.exports = function(grunt){
 
                                     build.write_module({
                                         dependencies: lang.object_member_by_namespaces(
-                                            pkg, 'cortex.exactDependencies', {}
+                                            pkg, 'cortex.dependencies', {}
                                         ),
                                         file: file,
                                         define: options.define,
@@ -336,7 +336,7 @@ module.exports = function(grunt){
 
         // @param {Object} options
         // - file: {string}
-        // - dependencies: {Object} exact dependencies of the current package
+        // - dependencies: {Object} dependencies of the current package
         // - define: {string} `options.define` of `module.exports`
         // - id: {string} standard id of the current module 
         // - output: {string}
@@ -389,8 +389,6 @@ module.exports = function(grunt){
 
             // read file
             var content = fs.read(file);
-            
-            var ast;
 
             // use syntax analytics
             var walker = new uglifyjs.TreeWalker(function(node) {
@@ -491,45 +489,6 @@ module.exports = function(grunt){
         };
 
 
-        // TODO
-        build.check_stable_module = function(options, callback) {
-            callback(null);
-        };
-
-
-        // publish modules to local server
-        // @param {Object} options
-        // - name: {string}
-        // - version: {string}
-        // - folder: {path}
-        build.publish = function(options, callback) {
-            grunt.log.writeln('publishing...'.cyan);
-
-
-            var CORTEX_BUILT_ROOT = build.context.profile.get('built_root');
-
-            var to = node_path.join( CORTEX_BUILT_ROOT, options.name, options.version );
-
-            try{
-                fs.remove(to) && fs.remove(to, {
-                    force: true
-                });
-
-                fs.copy(options.folder, to, {
-                    force: true
-                });
-
-                grunt.log.writeln("copy".cyan,options.folder,to);
-
-                callback(null);
-
-            }catch(e){
-                callback(e);
-            }
-        }
-
-
-        // var file_main = fileSrc.map(function(file){return node_path.resolve(file)});
         var parse_all_dependencies = function(file,all_parsed){
             var all = parse_all_dependencies.all = parse_all_dependencies.all || [];
             
@@ -582,15 +541,14 @@ module.exports = function(grunt){
 
 
         parse_all_dependencies(main_file,function(err,data){
-            if(err){return callback(err);}
+            if(err){return task_done(err);}
             run_options.files = run_options.files.concat(data);
-            //fileSrc.map(function(file){return node_path.resolve(file)});
+
             build.build_files(run_options, function(err, data) {
                 if(err){
-                    return callback(err);
+                    return task_done(new Error(err));
                 }
-
-                callback(null);
+                task_done(null);
             });
         });
 
@@ -601,7 +559,6 @@ module.exports = function(grunt){
     });
 
 };
-
 
 // options:{
 //     publish:true,
