@@ -569,7 +569,7 @@ module.exports = function(grunt){
                 return fs.read(file,{encoding:"utf8"});
             });
 
-            var runnerhtml = ejs.render(fs.read(node_path.join(__dirname, "..", "assets/runner.ejs")),{
+            var runnerhtml = ejs.render(fs.read(node_path.join(__dirname, "..", "assets", "runner.ejs")),{
                 mods:mods,
                 name:pkg.name,
                 version:pkg.version,
@@ -578,7 +578,11 @@ module.exports = function(grunt){
 
             var built_folder = node_path.join(cwd, profile.get('built_temp'), pkg.name, pkg.version);
 
+
+            grunt.log.writeln("write".cyan, "test/index.html");
             fs.write(node_path.join(built_folder, 'test', 'index.html'),runnerhtml);
+            grunt.log.writeln("copy".cyan, "test/tool");
+            fs.copy(node_path.join(__dirname,"..","assets","tool"), node_path.join(built_folder,'test','tool'));
         };
 
 
