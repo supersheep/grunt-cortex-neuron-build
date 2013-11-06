@@ -569,7 +569,6 @@ module.exports = function(grunt){
                 return fs.read(file,{encoding:"utf8"});
             });
 
-            console.log(specs);
             var runnerhtml = ejs.render(fs.read(node_path.join(__dirname, "..", "assets/runner.ejs")),{
                 mods:mods,
                 name:pkg.name,
@@ -590,7 +589,6 @@ module.exports = function(grunt){
             if(err){return task_done(new Error(err));}
 
             async.series([function(done){
-                console.log("D",data);
                 run_options.files = run_options.files.concat(data);
                 //fileSrc.map(function(file){return node_path.resolve(file)})
                 build.build_files(run_options, done);
