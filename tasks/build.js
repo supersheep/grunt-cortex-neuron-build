@@ -10,9 +10,11 @@ module.exports = function(grunt){
 
         var uglifyjs    = require('uglify-js');
         var fs          = require('fs-sync');
+        var node_fs      = require('fs');
         var async       = require('async');
         var node_path   = require('path');
         var multi_profile = require("multi-profile");
+        var ejs         = require('ejs');
 
         var task_done = this.async();
 
@@ -539,21 +541,68 @@ module.exports = function(grunt){
             });
         }
 
+        var build_tests = function(done){
+            var dependencies = lang.object_member_by_namespaces(pkg, 'cortex.dependencies', {});
+            var test_dir = lang.object_member_by_namespaces(pkg, 'cortex.directories.test', 'test');
+
+            var mods = [];
+            for(var name in dependencies){
+                mods.push({
+                    name:name,
+                    version:dependencies[name]
+                });
+            }
+
+            var files;
+            try{
+                files = node_fs.readdirSync(test_dir);
+            }catch(e){
+                files = [];
+            }
+
+            files = files.map(function(file){
+                return node_path.resolve(node_path.join(cwd,test_dir,file));
+            });
+
+
+            var specs = files.map(function(file){
+                return fs.read(file,{encoding:"utf8"});
+            });
+
+            console.log(specs);
+            var runnerhtml = ejs.render(fs.read(node_path.join(__dirname, "..", "assets/runner.ejs")),{
+                mods:mods,
+                name:pkg.name,
+                version:pkg.version,
+                specs:specs
+            });
+
+            var built_folder = node_path.join(cwd, profile.get('built_temp'), pkg.name, pkg.version);
+
+            fs.write(node_path.join(built_folder, 'test', 'index.html'),runnerhtml);
+        };
+
 
         run_options.files = [main_file];
 
 
         parse_all_dependencies(main_file,function(err,data){
             if(err){return task_done(new Error(err));}
-            run_options.files = run_options.files.concat(data);
 
-            build.build_files(run_options, function(err, data) {
-                if(err){
-                    return task_done(new Error(err));
-                }
+            async.series([function(done){
+                console.log("D",data);
+                run_options.files = run_options.files.concat(data);
+                //fileSrc.map(function(file){return node_path.resolve(file)})
+                build.build_files(run_options, done);
+            }, function(done){
+                build_tests(done);
+            }],function(err){
+                if(err){return task_done(new Error(err));}
                 task_done(null);
             });
+            
         });
+        
 
         
 
