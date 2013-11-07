@@ -105,6 +105,11 @@ module.exports = function(grunt){
                             return v;
                         }
                     }
+                },
+                service_port    : {
+                    // CTX -> 074
+                    value       : 9074,
+                    type        : 'number'
                 }
             }
         };
@@ -573,7 +578,8 @@ module.exports = function(grunt){
                 mods:mods,
                 name:pkg.name,
                 version:pkg.version,
-                specs:specs
+                specs:specs,
+                port: profile.get('service_port') || 9074
             });
 
             var built_folder = node_path.join(cwd, profile.get('built_temp'), pkg.name, pkg.version);
