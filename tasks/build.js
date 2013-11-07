@@ -563,7 +563,9 @@ module.exports = function(grunt){
 
             var files;
             try{
-                files = node_fs.readdirSync(test_dir);
+                files = node_fs.readdirSync(node_path.resolve(cwd,test_dir)).filter(function(path){
+                    return fs.lstatSync(path).isFile()
+                });
             }catch(e){
                 files = [];
             }
@@ -592,6 +594,7 @@ module.exports = function(grunt){
             fs.write(node_path.join(built_folder, 'test', 'index.html'),runnerhtml);
             grunt.log.writeln("copy".cyan, "test/tool");
             fs.copy(node_path.join(__dirname,"..","assets","tool"), node_path.join(built_folder,'test','tool'));
+            done()
         };
 
 
