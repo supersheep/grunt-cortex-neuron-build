@@ -550,7 +550,10 @@ module.exports = function(grunt){
             var dependencies = lang.object_member_by_namespaces(pkg, 'cortex.dependencies', {});
             var test_dir = lang.object_member_by_namespaces(pkg, 'cortex.directories.test', 'test');
 
-            var mods = [];
+            var mods = [{
+                name:pkg.name,
+                version:pkg.version
+            }];
             for(var name in dependencies){
                 mods.push({
                     name:name,
