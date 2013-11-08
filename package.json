@@ -1,6 +1,6 @@
 {
   "name": "grunt-cortex-neuron-build",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "build cmd module to neuron wrapped module",
   "main": "Gruntfile.js",
   "scripts": {
