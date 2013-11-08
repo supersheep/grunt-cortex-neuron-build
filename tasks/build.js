@@ -563,18 +563,16 @@ module.exports = function(grunt){
 
             var files;
             var test_dir = node_path.resolve(cwd,test_dir);
-            
+
             if(node_fs.existsSync(test_dir)){
-                files = node_fs.readdirSync(test_dir).filter(function(path){
-                    return node_fs.lstatSync(path).isFile()
+                files = node_fs.readdirSync(test_dir).map(function(path){
+                    return node_path.join(test_dir,path);
+                }).filter(function(path){
+                    return node_fs.lstatSync(path).isFile();
                 });
             }else{
                 files = [];
             }
-
-            files = files.map(function(file){
-                return node_path.resolve(node_path.join(cwd,test_dir,file));
-            });
 
 
             var specs = files.map(function(file){
