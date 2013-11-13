@@ -584,6 +584,7 @@ module.exports = function(grunt){
                 name:pkg.name,
                 version:pkg.version,
                 specs:specs,
+                base:profile.get('built_root'),
                 port: profile.get('service_port') || 9074
             });
 
