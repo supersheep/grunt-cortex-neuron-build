@@ -1,35 +1,22 @@
 'use strict';
 
+
+var fs = require("fs-sync");
+var chai = require("chai");
+var assert = chai.assert;
+var expect = chai.expect;
+var node_path = require("path");
+var wrapper = require("../");
+var lang = require("../lib/lang");
+
+chai.should();
+
 var grunt = require('grunt');
 var lib = require("../lib/module-promise.js");
 var path = require("path");
 
-/*
-  ======== A Handy Little Nodeunit Reference ========
-  https://github.com/caolan/nodeunit
-
-  Test methods:
-    test.expect(numAssertions)
-    test.done()
-  Test assertions:
-    test.ok(value, [message])
-    test.equal(actual, expected, [message])
-    test.notEqual(actual, expected, [message])
-    test.deepEqual(actual, expected, [message])
-    test.notDeepEqual(actual, expected, [message])
-    test.strictEqual(actual, expected, [message])
-    test.notStrictEqual(actual, expected, [message])
-    test.throws(block, [error], [message])
-    test.doesNotThrow(block, [error], [message])
-    test.ifError(value)
-*/
-
-exports.cortex_neuron_build = {
-  setUp: function(done) {
-    // setup here if necessary
-    done();
-  },
-  resolve_deps: function(test){
+describe('test module promise', function(){
+  it("should resolve properly", function(){
     var opt = {
       pkg_dependencies:{
         "a":"0.0.1",
@@ -44,11 +31,11 @@ exports.cortex_neuron_build = {
     var actual2 = lib.resolveDependency("./a",opt);
     var expected2 = "./a";
 
-    test.equal(actual1, expected1, "should resolve properly");
-    test.equal(actual2, expected2, "should resolve properly");
-    test.done();
-  },
-  generateIdentifier:function(test){
+    expect(actual1).to.equal(expected1);
+    expect(actual2).to.equal(expected2);
+  });
+
+  it("should generate identifier properly", function(){
     var actual1 = lib.generateIdentifier({
       file:"path/a.js",
       main_file:"path/a.js",
@@ -62,16 +49,17 @@ exports.cortex_neuron_build = {
       main_id:"mod@0.0.1"
     });
     var expected2 = "mod@0.0.1/c";
-    test.equal(actual1, expected1, "should generate identifier properly");
-    test.equal(actual2, expected2, "should generate identifier properly");
-    test.done();
-  },
-  resolveDepToFile: function(test){
+
+    expect(actual1).to.equal(expected1);
+    expect(actual2).to.equal(expected2);
+  });
+
+  it("should resolve dependency to file properly", function(){
     var actual = lib.resolveDepToFile("/root/proj/lib/test.js","./c");
-    test.equal(actual, "/root/proj/lib/c.js", "should resolve dependency to file properly");
-    test.done();
-  },
-  moduleRenderFuncFactory: function(test){
+    expect(actual).to.equal("/root/proj/lib/c.js");
+  });
+
+  it("should wrap module properly", function(){
     var actual = lib.moduleRenderFuncFactory({
       cortex:{
         dependencies:{
@@ -86,11 +74,16 @@ exports.cortex_neuron_build = {
     });
     var expected = grunt.file.read("test/expected/wrapped.js");
 
-    test.equal(actual.trim(), expected.trim(), "should wrap module properly");
-    test.done();
-  },
-  modulePromise: function(test){
+    expect(actual).to.equal(expected);
+  });
 
+  it("should resolve dependency to file properly", function(){
+    var actual = lib.resolveDepToFile("/root/proj/lib/test.js","./c");
+    expect(actual).to.equal("/root/proj/lib/c.js");
+  });
+
+  it("should resolve module and its dependencies properly", function(done){
+    this.timeout(5000);
     var promise = lib.promise({
       file:"test/fixtures/input.js",
       entry:"test/fixtures/input.js",
@@ -98,9 +91,9 @@ exports.cortex_neuron_build = {
     });
 
     promise.then(function(result){
-      test.deepEqual(result,  [ { 
+      assert.deepEqual(result, [ { 
         file: path.resolve('test/fixtures/d.js'),
-        output: 'define("test-module@0.1.0/d", [], function(require, exports, module) {\nmodule.exports = function(){\n\tconsole.log("I\'m d");\n}\n});',
+        output: 'define("test-module@0.1.0/d", [], function(require, exports, module) {\nmodule.exports = function(){\n\tconsole.log("I\'m d");\n};\n});',
         deps: [] 
       },{ 
         file: path.resolve('test/fixtures/c.js'),
@@ -110,18 +103,13 @@ exports.cortex_neuron_build = {
         file:  path.resolve('test/fixtures/input.js'),
         output: 'define("test-module@0.1.0", ["a@0.0.1", "b@0.0.2", "./c", "./d"], function(require, exports, module) {\nvar a = require("a");\nvar b = require("b");\nvar c = require("./c");\nvar d = require("./d");\n});',
         deps: [ 'a', 'b', './c', './d' ] 
-      }], "should generate identifier properly");
-      test.done();
-    }).fail(function(err){
-      test.equal(err, null, "should generate identifier properly");
-      test.done();
-    });
-  },
-  build: function(test) {
+      }]);
+    }).done(done);
+  });
+  
+  it("should wrap module properly", function(){
     var actual = grunt.file.read('test/expected/output-actual.js');
     var expected = grunt.file.read('test/expected/output.js');
-    test.equal(actual, expected, 'should describe what the default behavior is.');
-
-    test.done();
-  }
-};
+    expect(actual).to.equal(expected);
+  });
+});
