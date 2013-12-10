@@ -14,8 +14,6 @@ var node_path   = require('path');
 var modulePromise = require("../lib/module-promise").promise;
 var messages    = require("../lib/messages");
 
-require("colors");
-
 /**
  * options:
  * entries {k:v}
