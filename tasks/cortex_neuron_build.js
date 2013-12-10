@@ -45,8 +45,8 @@ module.exports = function(grunt) {
     var entries = options.entries;
 
     function moduleGenerator(src,dest){
-        src = node_path.resolve( node_path.join(options.cwd,src) );
-        dest = node_path.resolve( node_path.join(options.cwd,dest) );
+        src = node_path.resolve( options.cwd, src );
+        dest = node_path.resolve( options.cwd, dest );
         var modules = [];
         return function(done){
             async.waterfall([function(done){
