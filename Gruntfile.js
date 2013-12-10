@@ -28,7 +28,7 @@ module.exports = function(grunt) {
     },
 
     // Configuration to be run (and then tested).
-    cortex_neuron_build: {
+    "neuron-build": {
       test: {
         options: {
           entries: {
@@ -51,7 +51,7 @@ module.exports = function(grunt) {
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'cortex_neuron_build']);
+  grunt.registerTask('test', ['clean', 'neuron-build']);
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);

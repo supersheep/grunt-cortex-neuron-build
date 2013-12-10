@@ -26,7 +26,7 @@ module.exports = function(grunt) {
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
 
-  grunt.registerMultiTask('cortex_neuron_build', 'Your task description goes here.', function() {
+  grunt.registerMultiTask('neuron-build', 'Your task description goes here.', function() {
     // this is an async task
     var task_done = this.async();
 
