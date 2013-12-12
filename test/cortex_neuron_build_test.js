@@ -61,12 +61,10 @@ describe('test module promise', function(){
 
   it("should wrap module properly", function(){
     var actual = lib.moduleRenderFuncFactory({
-      cortex:{
         dependencies:{
           a:"0.0.1",
           b:"0.0.2"
-        }        
-      }
+        }
     })({
       id:"input@0.1.0",
       deps:["a","b","./c","./d"],
@@ -104,7 +102,7 @@ describe('test module promise', function(){
     var promise = lib.promise({
       file:"test/fixtures/input.js",
       entry:"test/fixtures/input.js",
-      pkg:grunt.file.readJSON("test/fixtures/package.json"),
+      pkg:grunt.file.readJSON("test/fixtures/mixed_package.json"),
       gruntOptions:gruntOptions
     });
 

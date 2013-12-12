@@ -36,7 +36,7 @@ module.exports = function(grunt) {
             "./c.js":"../expected/c-actual.js",
             "./d.js":"../expected/d-actual.js"
           },
-          pkg:grunt.file.readJSON("test/fixtures/package.json"),
+          pkg: grunt.file.readJSON("test/fixtures/mixed_package.json"),
           targetVersion: "latest",
           cwd:"./test/fixtures"
         }

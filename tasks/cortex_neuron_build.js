@@ -37,7 +37,7 @@ module.exports = function(grunt) {
       entries:{}
     });
 
-    var pkg = options.pkg || fs.readJSON( node_path.join(options.cwd,"package.json") );
+    var pkg = options.pkg;
 
     // set target version;
     var targetVersion = options.targetVersion || pkg.version;
