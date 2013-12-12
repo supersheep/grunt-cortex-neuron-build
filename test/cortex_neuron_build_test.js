@@ -83,27 +83,44 @@ describe('test module promise', function(){
   });
 
   it("should resolve module and its dependencies properly", function(done){
-    this.timeout(5000);
+    var gruntOptions = {
+        entries: {
+          "./input.js":"../expected/output-actual.js",
+          "./c.js":"../expected/c-actual.js",
+          "./d.js":"../expected/d-actual.js"
+        },
+        pkg:{
+            "main":"input.js",
+            "dependencies": {
+              "a": "0.0.1",
+              "b": "0.0.2"
+            },
+            "entries":["*.js"]
+        },
+        targetVersion: "latest",
+        cwd:"./test/fixtures"
+      };
+
     var promise = lib.promise({
       file:"test/fixtures/input.js",
       entry:"test/fixtures/input.js",
-      pkg:grunt.file.readJSON("test/fixtures/package.json")
+      pkg:grunt.file.readJSON("test/fixtures/package.json"),
+      gruntOptions:gruntOptions
     });
 
     promise.then(function(result){
-      assert.deepEqual(result, [ { 
-        file: path.resolve('test/fixtures/d.js'),
-        output: 'define("test-module@0.1.0/d", [], function(require, exports, module) {\nmodule.exports = function(){\n\tconsole.log("I\'m d");\n};\n});',
-        deps: [] 
-      },{ 
-        file: path.resolve('test/fixtures/c.js'),
-        output: 'define("test-module@0.1.0/c", ["./d"], function(require, exports, module) {\nvar d = require("./d");\n});',
-        deps: [ './d' ] 
-      },{ 
-        file:  path.resolve('test/fixtures/input.js'),
-        output: 'define("test-module@0.1.0", ["a@0.0.1", "b@0.0.2", "./c", "./d"], function(require, exports, module) {\nvar a = require("a");\nvar b = require("b");\nvar c = require("./c");\nvar d = require("./d");\n});',
-        deps: [ 'a', 'b', './c', './d' ] 
-      }]);
+      expect(result[0].file).to.equal(path.resolve('test/fixtures/c.js'));
+      expect(result[1].file).to.equal(path.resolve('test/fixtures/d.js'));
+      expect(result[2].file).to.equal(path.resolve('test/fixtures/input.js'));
+
+      expect(result[0].output).to.equal(grunt.file.read("test/fixtures/c-wrapped.js"));
+      expect(result[1].output).to.equal(grunt.file.read("test/fixtures/d-wrapped.js"));
+      expect(result[2].output).to.equal(grunt.file.read("test/fixtures/input-wrapped.js"));
+
+      expect(result[0].deps).to.deep.equal([ './d' ]);
+      expect(result[1].deps).to.deep.equal([ ]);
+      expect(result[2].deps).to.deep.equal([ 'a', 'b', './c', './d' ]);
+
     }).done(done);
   });
   

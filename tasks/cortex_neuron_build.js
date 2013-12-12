@@ -37,13 +37,12 @@ module.exports = function(grunt) {
       entries:{}
     });
 
-    var pkg = fs.readJSON( node_path.join(options.cwd,"package.json") );
+    var pkg = options.pkg || fs.readJSON( node_path.join(options.cwd,"package.json") );
 
     // set target version;
     var targetVersion = options.targetVersion || pkg.version;
 
     var entries = options.entries;
-
     function moduleGenerator(src,dest){
         src = node_path.resolve( options.cwd, src );
         dest = node_path.resolve( options.cwd, dest );
@@ -51,18 +50,22 @@ module.exports = function(grunt) {
         return function(done){
             async.waterfall([function(done){
                 modulePromise({
+                    gruntOptions:options,
                     file:src,
                     entry:src,
                     pkg:pkg,
                     targetVersion:targetVersion
                 }).then(function(results){
-                    done(results.sort(function(item){
+                    done(null,results.sort(function(item){;
                         return item.file === src ? 1 : -1;
                     }).map(function(item){
                         return item.output;
                     }).join("\n"));
-                });
-            }],function(content){
+                }).fail(done);
+            }],function(err, content){
+                if(err){
+                    return task_done(err);
+                }
                 fs.write(dest,content);
                 grunt.log.writeln('File "' + dest + '" created.');
                 done();

@@ -1,1 +1,2 @@
-var d = require("./d");
+require("./d");
+require.async("./d");

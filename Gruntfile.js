@@ -32,8 +32,11 @@ module.exports = function(grunt) {
       test: {
         options: {
           entries: {
-            "./input.js":"../expected/output-actual.js"
+            "./input.js":"../expected/output-actual.js",
+            "./c.js":"../expected/c-actual.js",
+            "./d.js":"../expected/d-actual.js"
           },
+          pkg:grunt.file.readJSON("test/fixtures/package.json"),
           targetVersion: "latest",
           cwd:"./test/fixtures"
         }
