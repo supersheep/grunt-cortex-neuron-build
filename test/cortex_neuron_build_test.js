@@ -52,15 +52,24 @@ describe('test module promise', function(){
 
 
     var actual3 = lib.generateIdentifier({
+      cwd:"cwdcwd",
       file:"path/child/c.js",
       main_file:"path/a.js",
       main_id:"mod@0.0.1"
     });
     var expected3 = "mod@0.0.1/child/c";
 
+    var actual4 = lib.generateIdentifier({ 
+      cwd: 'test/fixtures',
+      file: '/Users/spud/Product/grunt-cortex-neuron-build/test/fixtures/input.js',
+      main_file: 'input.js',
+      main_id: 'test-module@0.1.0' 
+    });
+    var expected4 = "test-module@0.1.0";
     expect(actual1).to.equal(expected1);
     expect(actual2).to.equal(expected2);
     expect(actual3).to.equal(expected3);
+    expect(actual4).to.equal(expected4);
   });
 
   it("should resolve dependency to file properly", function(){
@@ -90,30 +99,12 @@ describe('test module promise', function(){
   });
 
   it("should resolve module and its dependencies properly", function(done){
-    var gruntOptions = {
-        entries: {
-          "./input.js":"../expected/output-actual.js",
-          "./c.js":"../expected/c-actual.js",
-          "./d.js":"../expected/d-actual.js",
-          "./folder/child.js":"../expected/folder/child-actual.js"
-        },
-        pkg:{
-            "main":"input.js",
-            "dependencies": {
-              "a": "0.0.1",
-              "b": "0.0.2"
-            },
-            "entries":["*.js"]
-        },
-        targetVersion: "latest",
-        cwd:"./test/fixtures"
-      };
-
     var promise = lib.promise({
+      cwd:"test/fixtures",
       file:"test/fixtures/input.js",
       entry:"test/fixtures/input.js",
       pkg:grunt.file.readJSON("test/fixtures/mixed_package.json"),
-      gruntOptions:gruntOptions
+      targetVersion:"latest"
     });
 
     function findByFileName(results,fileName){
