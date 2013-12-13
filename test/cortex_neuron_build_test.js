@@ -102,7 +102,6 @@ describe('test module promise', function(){
     var promise = lib.promise({
       cwd:"test/fixtures",
       file:"test/fixtures/input.js",
-      entry:"test/fixtures/input.js",
       pkg:grunt.file.readJSON("test/fixtures/mixed_package.json"),
       targetVersion:"latest"
     });
