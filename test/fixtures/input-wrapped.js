@@ -5,7 +5,6 @@ var c = require("./c");
 var d = require("./d");
 }, {
     "asyncDeps": [
-        "test-module@0.1.0/c",
-        "test-module@0.1.0/d"
+        "c@0.0.3"
     ]
 });

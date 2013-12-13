@@ -18,7 +18,7 @@ var path = require("path");
 describe('test module promise', function(){
   it("should resolve properly", function(){
     var opt = {
-      pkg_dependencies:{
+      deps:{
         "a":"0.0.1",
         "b":"0.0.2"
       },
