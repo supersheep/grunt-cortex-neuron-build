@@ -58,10 +58,10 @@ describe('test module promise', function(){
       main_id:"mod@0.0.1"
     });
     var expected3 = "mod@0.0.1/child/c";
-
+    
     var actual4 = lib.generateIdentifier({ 
       cwd: 'test/fixtures',
-      file: '/Users/spud/Product/grunt-cortex-neuron-build/test/fixtures/input.js',
+      file: path.resolve('test/fixtures/input.js'),
       main_file: 'input.js',
       main_id: 'test-module@0.1.0' 
     });
