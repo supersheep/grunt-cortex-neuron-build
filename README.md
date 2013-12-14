@@ -1,4 +1,4 @@
-# grunt-cortex-neuron-build
+# grunt-cortex-neuron-build [![Build Status](https://travis-ci.org/supersheep/grunt-cortex-neuron-build.png?branch=master)](https://travis-ci.org/supersheep/grunt-cortex-neuron-build)
 
 > build a module to neuron wrapping
 
