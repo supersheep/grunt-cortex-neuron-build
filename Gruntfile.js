@@ -24,7 +24,7 @@ module.exports = function(grunt) {
 
     // Before generating any new files, remove any previously-created files.
     clean: {
-      tests: ['tmp'],
+      tests: ['tmp','test/expected/**/*-actual.js'],
     },
 
     // Configuration to be run (and then tested).
@@ -32,7 +32,8 @@ module.exports = function(grunt) {
       test: {
         options: {
           entries: {
-            "./folder/child.js":"../expected/folder/child-actual.js"
+            "./folder/child.js":"../expected/folder/child-actual.js",
+            "./input.js":"../expected/output-actual.js"
           },
           pkg: grunt.file.readJSON("test/fixtures/mixed_package.json"),
           targetVersion: "latest",

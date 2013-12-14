@@ -1,6 +1,6 @@
 define("test-module@latest/d", [], function(require, exports, module) {
 module.exports = function(){
-	console.log("I'm d");
+    console.log("I'm d");
 };
 }, {
     "asyncDeps": [
