@@ -1,3 +1,4 @@
 *.log
 node_modules
 test/expected/*-actual.js
+test/expected/**/*-actual.js
