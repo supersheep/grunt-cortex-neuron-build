@@ -1,4 +1,4 @@
-define("test-module@0.1.0/d", [], function(require, exports, module) {
+define("test-module@latest/d", [], function(require, exports, module) {
 module.exports = function(){
 	console.log("I'm d");
 };

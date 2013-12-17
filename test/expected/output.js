@@ -1,5 +1,5 @@
-define("test-module@latest/c", ["./d"], function(require, exports, module) {
-require("./d");
+define("test-module@latest/c", ["./folder/child"], function(require, exports, module) {
+require("./folder/child");
 require.async("./d");
 }, {
     "asyncDeps": [
@@ -8,8 +8,15 @@ require.async("./d");
 });
 define("test-module@latest/d", [], function(require, exports, module) {
 module.exports = function(){
-	console.log("I'm d");
+    console.log("I'm d");
 };
+}, {
+    "asyncDeps": [
+        "c@0.0.3"
+    ]
+});
+define("test-module@latest/folder/child", [], function(require, exports, module) {
+console.log(1);
 }, {
     "asyncDeps": [
         "c@0.0.3"

@@ -39,8 +39,6 @@ module.exports = function(grunt) {
 
     var pkg = options.pkg;
 
-    // set target version;
-    var targetVersion = options.targetVersion || pkg.version;
 
     var entries = options.entries;
     function moduleGenerator(src,dest){
@@ -50,11 +48,10 @@ module.exports = function(grunt) {
         return function(done){
             async.waterfall([function(done){
                 modulePromise({
-                    gruntOptions:options,
+                    cwd:options.cwd,
+                    targetVersion:options.targetVersion,
                     file:src,
-                    entry:src,
-                    pkg:pkg,
-                    targetVersion:targetVersion
+                    pkg:pkg
                 }).then(function(results){
                     done(null,results.sort(function(item){;
                         return item.file === src ? 1 : -1;

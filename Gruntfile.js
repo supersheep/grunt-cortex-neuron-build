@@ -32,9 +32,7 @@ module.exports = function(grunt) {
       test: {
         options: {
           entries: {
-            "./input.js":"../expected/output-actual.js",
-            "./c.js":"../expected/c-actual.js",
-            "./d.js":"../expected/d-actual.js"
+            "./folder/child.js":"../expected/folder/child-actual.js"
           },
           pkg: grunt.file.readJSON("test/fixtures/mixed_package.json"),
           targetVersion: "latest",

@@ -9,5 +9,5 @@
   "asyncDependencies": {
   	"c": "0.0.3"
   },
-  "entries":["input.js","c.js","d.js"]
+  "entries":["input.js","c.js","d.js","folder/child.js"]
 }

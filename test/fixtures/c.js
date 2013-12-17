@@ -1,2 +1,2 @@
-require("./d");
+require("./folder/child");
 require.async("./d");

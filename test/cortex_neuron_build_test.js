@@ -50,8 +50,17 @@ describe('test module promise', function(){
     });
     var expected2 = "mod@0.0.1/c";
 
+
+    var actual3 = lib.generateIdentifier({
+      file:"path/child/c.js",
+      main_file:"path/a.js",
+      main_id:"mod@0.0.1"
+    });
+    var expected3 = "mod@0.0.1/child/c";
+
     expect(actual1).to.equal(expected1);
     expect(actual2).to.equal(expected2);
+    expect(actual3).to.equal(expected3);
   });
 
   it("should resolve dependency to file properly", function(){
@@ -85,7 +94,8 @@ describe('test module promise', function(){
         entries: {
           "./input.js":"../expected/output-actual.js",
           "./c.js":"../expected/c-actual.js",
-          "./d.js":"../expected/d-actual.js"
+          "./d.js":"../expected/d-actual.js",
+          "./folder/child.js":"../expected/folder/child-actual.js"
         },
         pkg:{
             "main":"input.js",
@@ -106,19 +116,27 @@ describe('test module promise', function(){
       gruntOptions:gruntOptions
     });
 
-    promise.then(function(result){
-      expect(result[0].file).to.equal(path.resolve('test/fixtures/c.js'));
-      expect(result[1].file).to.equal(path.resolve('test/fixtures/d.js'));
-      expect(result[2].file).to.equal(path.resolve('test/fixtures/input.js'));
+    function findByFileName(results,fileName){
+      return results.filter(function(result){
+        return result.file.indexOf(fileName) !== -1;
+      })[0];
+    }
 
-      expect(result[0].output).to.equal(grunt.file.read("test/fixtures/c-wrapped.js"));
-      expect(result[1].output).to.equal(grunt.file.read("test/fixtures/d-wrapped.js"));
-      expect(result[2].output).to.equal(grunt.file.read("test/fixtures/input-wrapped.js"));
-
-      expect(result[0].deps).to.deep.equal([ './d' ]);
-      expect(result[1].deps).to.deep.equal([ ]);
-      expect(result[2].deps).to.deep.equal([ 'a', 'b', './c', './d' ]);
-
+    promise.then(function(results){
+      [{
+        name:"c",
+        deps:["./folder/child"]
+      },{
+        name:"d",
+        deps:[]
+      },{
+        name:"input",
+        deps:["a","b","./c","./d"]
+      }].forEach(function(item){
+        var fixture = findByFileName(results,"fixtures/" + item.name + ".js");
+        expect(fixture.output).to.equal(grunt.file.read("test/fixtures/" + item.name + "-wrapped.js"));
+        expect(fixture.deps).to.deep.equal(item.deps);
+      });
     }).done(done);
   });
   

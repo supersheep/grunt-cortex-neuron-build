@@ -1,5 +1,5 @@
-define("test-module@0.1.0/c", ["./d"], function(require, exports, module) {
-require("./d");
+define("test-module@latest/c", ["./folder/child"], function(require, exports, module) {
+require("./folder/child");
 require.async("./d");
 }, {
     "asyncDeps": [
