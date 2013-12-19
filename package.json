@@ -1,7 +1,7 @@
 {
   "name": "grunt-cortex-neuron-build",
   "description": "Build cmd module to neuron wrapped module",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "homepage": "https://github.com/supersheep/grunt-cortex-neuron-build",
   "author": {
     "name": "supersheep",
@@ -40,7 +40,7 @@
     "gruntplugin"
   ],
   "dependencies": {
-    "module-wrapper": "~0.0.1",
+    "module-wrapper": "~0.0.3",
     "fs-sync": "~0.2.4",
     "q": "~0.9.7",
     "lodash": "~2.4.1",
