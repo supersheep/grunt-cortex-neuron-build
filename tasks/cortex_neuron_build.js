@@ -46,27 +46,27 @@ module.exports = function(grunt) {
         dest = node_path.resolve( options.cwd, dest );
         var modules = [];
         return function(done){
-            async.waterfall([function(done){
-                modulePromise({
-                    cwd:options.cwd,
-                    targetVersion:options.targetVersion,
-                    file:src,
-                    pkg:pkg
-                }).then(function(results){
-                    done(null,results.sort(function(item){;
-                        return item.file === src ? 1 : -1;
-                    }).map(function(item){
-                        return item.output;
-                    }).join("\n"));
-                }).fail(done);
-            }],function(err, content){
-                if(err){
-                    return task_done(err);
-                }
+
+            modulePromise({
+                cwd:options.cwd,
+                targetVersion:options.targetVersion,
+                file:src,
+                pkg:pkg
+            }).then(function(results){
+                moduleParsed(null,results.sort(function(item){;
+                    return item.file === src ? 1 : -1;
+                }).map(function(item){
+                    return item.output;
+                }).join("\n"));
+            }).fail(moduleParsed);
+
+            function moduleParsed(err,content){
+                if(err){return done(err);}
                 fs.write(dest,content);
                 grunt.log.writeln('File "' + dest + '" created.');
-                done();
-            });
+                done(null);
+            }
+            
         };
     }
 
@@ -76,7 +76,16 @@ module.exports = function(grunt) {
         tasks.push(moduleGenerator(k,entries[k]));
     }
 
-    async.series(tasks,task_done);
+    async.series(tasks,function(err){
+        if(err){
+            if(!(err instanceof Error)){
+                err = new Error(err);
+            }
+            task_done(err);
+        }else{
+            task_done(null);
+        }
+    });
 
   });
 };
