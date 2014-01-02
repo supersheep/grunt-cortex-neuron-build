@@ -70,6 +70,12 @@ module.exports = function(grunt) {
         };
     }
 
+    function santitizeError(err){
+        if(err.parentFile){
+            err.message += "\nparentFile: " + err.parentFile
+        }
+        return err;
+    }
 
     var tasks = [];
     for(var k in entries){
@@ -81,6 +87,7 @@ module.exports = function(grunt) {
             if(!(err instanceof Error)){
                 err = new Error(err);
             }
+            err = santitizeError(err);
             task_done(err);
         }else{
             task_done(null);

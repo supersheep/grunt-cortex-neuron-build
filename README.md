@@ -82,7 +82,7 @@ module.exports = function(){
   console.log("I'm d");
 };
 ```
-and give such config is Gruntfile.js
+and give such config in Gruntfile.js
 ```js
 grunt.initConfig({
   cortex_neuron_build: {
