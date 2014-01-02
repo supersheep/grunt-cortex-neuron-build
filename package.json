@@ -40,7 +40,7 @@
     "gruntplugin"
   ],
   "dependencies": {
-    "module-wrapper": "~0.0.3",
+    "module-wrapper": "~0.0.4",
     "fs-sync": "~0.2.4",
     "q": "~0.9.7",
     "lodash": "~2.4.1",
