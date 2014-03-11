@@ -35,6 +35,7 @@ module.exports = function(grunt) {
             "./folder/child.js":"../expected/folder/child-actual.js",
             "./input.js":"../expected/output-actual.js"
           },
+          mainEntry:"./test/fixtures/input.js",
           pkg: grunt.file.readJSON("test/fixtures/mixed_package.json"),
           targetVersion: "latest",
           cwd:"./test/fixtures"
