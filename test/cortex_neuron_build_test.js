@@ -38,6 +38,7 @@ describe('test module promise', function(){
   it("should generate identifier properly", function(){
     var actual1 = lib.generateIdentifier({
       file:"path/a.js",
+      cwd:"path",
       main_file:"path/a.js",
       main_id:"mod@0.0.1"
     });
@@ -45,21 +46,23 @@ describe('test module promise', function(){
 
     var actual2 = lib.generateIdentifier({
       file:"path/c.js",
+      cwd:"path",
       main_file:"path/a.js",
       main_id:"mod@0.0.1"
     });
     var expected2 = "mod@0.0.1/c";
 
-    console.log("PATH",path.resolve("path/a.js"));
     var actual3 = lib.generateIdentifier({
       file:"path/child/c.js",
+      cwd: "path",
       main_file: "path/child/a.js",
       main_id:"mod@0.0.1"
     });
-    var expected3 = "mod@0.0.1/c";
+    var expected3 = "mod@0.0.1/child/c";
 
     var actual4 = lib.generateIdentifier({
       file: path.resolve('test/fixtures/input.js'),
+      cwd: path.resolve("test/fixtures"),
       main_file: path.resolve('test/fixtures/input.js'),
       main_id: 'test-module@0.1.0'
     });
