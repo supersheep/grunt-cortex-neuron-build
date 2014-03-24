@@ -39,15 +39,15 @@ module.exports = function(grunt) {
 
     var pkg = options.pkg;
 
-
     var entries = options.entries;
+    var mainEntry = node_path.resolve(options.mainEntry);
     function moduleGenerator(src,dest){
         src = node_path.resolve( options.cwd, src );
         dest = node_path.resolve( options.cwd, dest );
         var modules = [];
         return function(done){
-
             modulePromise({
+                mainEntry: mainEntry,
                 cwd:options.cwd,
                 targetVersion:options.targetVersion,
                 file:src,
@@ -66,7 +66,7 @@ module.exports = function(grunt) {
                 grunt.log.writeln('File "' + dest + '" created.');
                 done(null);
             }
-            
+
         };
     }
 

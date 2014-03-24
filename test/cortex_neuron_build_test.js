@@ -38,34 +38,35 @@ describe('test module promise', function(){
   it("should generate identifier properly", function(){
     var actual1 = lib.generateIdentifier({
       file:"path/a.js",
+      cwd:"path",
       main_file:"path/a.js",
       main_id:"mod@0.0.1"
     });
-    var expected1 = "mod@0.0.1";
+    var expected1 = "mod@0.0.1/a";
 
     var actual2 = lib.generateIdentifier({
       file:"path/c.js",
+      cwd:"path",
       main_file:"path/a.js",
       main_id:"mod@0.0.1"
     });
     var expected2 = "mod@0.0.1/c";
 
-
     var actual3 = lib.generateIdentifier({
-      cwd:"cwdcwd",
       file:"path/child/c.js",
-      main_file:"path/a.js",
+      cwd: "path",
+      main_file: "path/child/a.js",
       main_id:"mod@0.0.1"
     });
     var expected3 = "mod@0.0.1/child/c";
-    
-    var actual4 = lib.generateIdentifier({ 
-      cwd: 'test/fixtures',
+
+    var actual4 = lib.generateIdentifier({
       file: path.resolve('test/fixtures/input.js'),
-      main_file: 'input.js',
-      main_id: 'test-module@0.1.0' 
+      cwd: path.resolve("test/fixtures"),
+      main_file: path.resolve('test/fixtures/input.js'),
+      main_id: 'test-module@0.1.0'
     });
-    var expected4 = "test-module@0.1.0";
+    var expected4 = "test-module@0.1.0/input";
     expect(actual1).to.equal(expected1);
     expect(actual2).to.equal(expected2);
     expect(actual3).to.equal(expected3);
@@ -102,6 +103,7 @@ describe('test module promise', function(){
     var promise = lib.promise({
       cwd:"test/fixtures",
       file:"test/fixtures/input.js",
+      mainEntry:"test/fixtures/input.js",
       pkg:grunt.file.readJSON("test/fixtures/mixed_package.json"),
       targetVersion:"latest"
     });
@@ -129,7 +131,7 @@ describe('test module promise', function(){
       });
     }).done(done);
   });
-  
+
   it("should wrap module properly", function(){
     var actual = grunt.file.read('test/expected/output-actual.js');
     var expected = grunt.file.read('test/expected/output.js');
